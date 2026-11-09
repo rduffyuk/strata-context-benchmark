@@ -1,6 +1,6 @@
 # Source and environment disclosure
 
-Review draft for Ryan Duffy. This is a benchmark of one configured deployment, not a stock-Strata result or a controlled comparison of every setting.
+Published by Ryan Duffy, 9 November 2026. This is a benchmark of one configured deployment, not a stock-Strata result or a controlled comparison of every setting.
 
 ## Engine and local changes
 

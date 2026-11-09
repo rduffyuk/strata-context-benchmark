@@ -12,7 +12,7 @@ Use Python3.10 or later. No third-party packages, network, model download or GPU
 python3 reproduce_all.py
 ```
 
-The root manifest is checked before the three fixed offline replay programs run. Each study also checks its own evidence manifest. Do not disable verification to obtain a pass. Hashes demonstrate agreement with the reviewed bytes; compare the release/archive digest with a trusted owner-approved publication record for origin, and do not mistake these checks for independent third-party validation.
+Git checkout metadata and signed provenance sidecars are outside the content manifest; arbitrary extra package files and changes to evidence are rejected. The root manifest is checked before the three fixed offline replay programs run. Each study also checks its own evidence manifest. Do not disable verification to obtain a pass. Hashes demonstrate agreement with the reviewed bytes; compare the release/archive digest with a trusted owner-approved publication record for origin, and do not mistake these checks for independent third-party validation.
 
 | Separate dataset | Scope | Reproduced finding |
 |---|---|---|

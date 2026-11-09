@@ -1,6 +1,7 @@
 """Verify the reviewed export and replay its three fixed offline studies. No GPU/network."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,7 +14,29 @@ def verify():
     if manifest.get('schema') != 'strata-benchmark-export/v1':
         raise ValueError('Unknown export manifest')
     files = manifest['files']
-    actual = {str(p.relative_to(ROOT)) for p in ROOT.rglob('*') if p.is_file() and p != ROOT / 'MANIFEST.json'}
+    actual = set()
+    for directory, dirs, filenames in os.walk(ROOT, followlinks=False):
+        base = Path(directory)
+        if base == ROOT:
+            # Git's own metadata is outside the exported benchmark package.
+            dirs[:] = [name for name in dirs if name != '.git']
+            filenames = [name for name in filenames if name != '.git']
+        # Do not follow directory symlinks, but retain them as unexpected entries.
+        for name in list(dirs):
+            path = base / name
+            if path.is_symlink():
+                actual.add(str(path.relative_to(ROOT)))
+                dirs.remove(name)
+        for name in filenames:
+            path = base / name
+            rel = path.relative_to(ROOT)
+            if rel == Path('MANIFEST.json'):
+                continue
+            if (rel.parent == Path('.rootweaver/provenance')
+                    and (name.endswith('.json') or name.endswith('.json.sig'))
+                    and not path.is_symlink()):
+                continue
+            actual.add(str(rel))
     if actual != set(files):
         raise ValueError('Missing or unexpected package files')
     for name, entry in files.items():
