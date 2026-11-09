@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Three authoritative retrieval fields",
+  "type": "object",
+  "properties": {
+    "KEY_0": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "KEY_1": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "KEY_2": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    }
+  },
+  "required": [
+    "KEY_0",
+    "KEY_1",
+    "KEY_2"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,249 @@
+--- a/include/strata/core/conversation_snapshot.hpp
++++ b/include/strata/core/conversation_snapshot.hpp
+@@ -54,6 +54,9 @@
+ // sizes at that many tokens - so session_file_read refuses an oversized or foreign file before it allocates.
+ bool conversation_session_read_limits(SessionReadLimits& limits, const SessionState& session, const ModelGeometry& g,
+                                       const QsaState& draft, uint64_t max_tokens, uint64_t max_checkpoints,
++                                      std::string& error);
++bool conversation_session_read_limits(SessionReadLimits& limits, const SessionState& session, const ModelGeometry& g,
++                                      const QsaState* draft, uint64_t max_tokens, uint64_t max_checkpoints,
+                                       std::string& error);
+ 
+ struct ConversationStateSizes {
+@@ -139,6 +142,9 @@
+ bool conversation_snapshot_sources(SavedConversation& meta, std::vector<SessionKvSource>& sources,
+                                    const ConversationView& view, const SessionState& session,
+                                    const ModelGeometry& g, const QsaState& draft, std::string& error);
++bool conversation_snapshot_sources(SavedConversation& meta, std::vector<SessionKvSource>& sources,
++                                   const ConversationView& view, const SessionState& session,
++                                   const ModelGeometry& g, const QsaState* draft, std::string& error);
+ bool conversation_snapshot_validate(const SavedConversation& image, const SessionState& session,
+                                     const ModelGeometry& g, const QsaState& draft, std::string& error);
+ /// #2409: true when a restore (or a copy) on CUDA device `device` from the calling thread creates no copy stream: this
+--- a/src/core/conversation_snapshot_test.cpp
++++ b/src/core/conversation_snapshot_test.cpp
+@@ -191,6 +191,23 @@
+               x.checkpoints.size()==y.checkpoints.size() && equal(x.kv[0],y.kv[0]) && equal(x.kv.back(),y.kv.back()),
+               "streamed file equals captured file");
+         check(slurp(p1)==slurp(p2),"streamed file is byte-identical to the captured file");
++        SavedConversation no_draft, meta_no_draft, loaded;
++        std::vector<SessionKvSource> no_draft_sources;
++        check(conversation_snapshot_save(no_draft,view,ss,g,nullptr,err),"capture without MTP");
++        check(conversation_snapshot_sources(meta_no_draft,no_draft_sources,view,ss,g,nullptr,err),"disk sources without MTP");
++        check(no_draft_sources.size()==no_draft.kv.size() && no_draft_sources.size()+1==b.kv.size(),"no phantom draft source");
++        check(session_file_write(p1,meta_no_draft,no_draft_sources,id,n1,err) && session_file_write(p2,no_draft,id,n2,err),"write no-MTP sessions");
++        check(slurp(p1)==slurp(p2),"streamed no-MTP file equals captured file");
++        SessionReadLimits limits;
++        check(conversation_session_read_limits(limits,ss,g,nullptr,96,1,err),"no-MTP runtime read bounds");
++        check(session_file_read(p1,id,loaded,n1,err,limits),"read no-MTP file under runtime bounds");
++        check(!conversation_snapshot_validate(loaded,ss,g,draft.state,err),"no-MTP file refused by MTP session");
++        fill(91);
++        check(conversation_snapshot_restore(loaded,ss,g,nullptr,err)==ConversationRestore::restored,"restore no-MTP disk file");
++        SavedConversation checked;
++        check(conversation_snapshot_save(checked,view,ss,g,nullptr,err) && checked.live.gdn==no_draft.live.gdn &&
++              checked.live.dead==no_draft.live.dead && equal(checked.kv[0],no_draft.kv[0]),"no-MTP disk round trip exact");
++        check(conversation_snapshot_restore(b,ss,g,draft.state,err)==ConversationRestore::restored,"restore original fixture after no-MTP disk check");
+         std::error_code ec;
+         fs::remove_all(dir,ec);
+         auto empty_ids=std::vector<int32_t>{};
+--- a/src/core/conversation_state.cpp
++++ b/src/core/conversation_state.cpp
+@@ -621,7 +621,7 @@
+ 
+ bool conversation_snapshot_sources(SavedConversation& meta, std::vector<SessionKvSource>& sources,
+                                    const ConversationView& view, const SessionState& ss, const ModelGeometry& g,
+-                                   const QsaState& draft, std::string& error) {
++                                   const QsaState* draft, std::string& error) {
+     if (!view_validate(view, ss, g, error) || !sync(error)) return false;
+     SavedConversation captured;
+     captured.geometry = geometry_key(g);
+@@ -633,17 +633,17 @@
+     conversation_checkpoint_join(captured.live.gdn.data());
+     const int64_t upto = (int64_t) view.ids.size();
+     const size_t layers = owned_qsa(ss);
+-    std::vector<SessionKvSource> out(layers + 1);
++    std::vector<SessionKvSource> out(layers + (draft ? 1 : 0));
+     for (size_t j = 0; j < layers; ++j)
+         if (!conversation_kv_source(out[j], owned(ss, j), g, upto, true, error)) return false;
+-    if (!conversation_kv_source(out.back(), draft, g, upto, false, error)) return false;
++    if (draft && !conversation_kv_source(out.back(), *draft, g, upto, false, error)) return false;
+     meta = std::move(captured);
+     sources = std::move(out);
+     return true;
+ }
+ 
+ bool conversation_session_read_limits(SessionReadLimits& limits, const SessionState& ss, const ModelGeometry& g,
+-                                      const QsaState& draft, uint64_t max_tokens, uint64_t max_checkpoints,
++                                      const QsaState* draft, uint64_t max_tokens, uint64_t max_checkpoints,
+                                       std::string& error) {
+     ConversationStateSizes z;
+     if (!conversation_session_sizes(g, ss, z, error)) return false;
+@@ -657,18 +657,20 @@
+     SessionReadLimits l = limits;   // keeps the caller's admit / progress / max_file_bytes
+     l.max_tokens = tokens;
+     l.max_checkpoints = max_checkpoints;
+-    l.max_kv_layers = layers + 1;
++    l.max_kv_layers = layers + (draft ? 1 : 0);
+     l.geometry = geometry_key(g);
+     l.layer_range = std::make_pair(ss.layer_lo, ss.layer_hi);
+     l.max_state_bytes = {z.gdn, ss.ple_hist ? z.ple : 0, tails, dead, block_pos};
+-    l.max_kv_bytes.assign(layers + 1, {});
++    l.max_kv_bytes.assign(l.max_kv_layers, {});
+     for (size_t j = 0; j < layers; ++j) {
+         const auto& st = owned(ss, j);
+         const int64_t upto = (int64_t) std::min<uint64_t>(tokens, (uint64_t) std::max<int64_t>(st.max_cells, 0));
+         if (!conversation_kv_part_sizes(st, g, upto, true, l.max_kv_bytes[j], error)) return false;
+     }
+-    const int64_t dupto = (int64_t) std::min<uint64_t>(tokens, (uint64_t) std::max<int64_t>(draft.max_cells, 0));
+-    if (!conversation_kv_part_sizes(draft, g, dupto, false, l.max_kv_bytes.back(), error)) return false;
++    if (draft) {
++        const int64_t dupto = (int64_t) std::min<uint64_t>(tokens, (uint64_t) std::max<int64_t>(draft->max_cells, 0));
++        if (!conversation_kv_part_sizes(*draft, g, dupto, false, l.max_kv_bytes.back(), error)) return false;
++    }
+     limits = std::move(l);
+     return true;
+ }
+@@ -709,6 +711,17 @@
+     return ConversationRestore::restored;
+ }
+ 
++bool conversation_snapshot_sources(SavedConversation& meta, std::vector<SessionKvSource>& sources,
++                                   const ConversationView& view, const SessionState& ss, const ModelGeometry& g,
++                                   const QsaState& draft, std::string& error) {
++    return conversation_snapshot_sources(meta, sources, view, ss, g, &draft, error);
++}
++bool conversation_session_read_limits(SessionReadLimits& limits, const SessionState& ss, const ModelGeometry& g,
++                                      const QsaState& draft, uint64_t max_tokens, uint64_t max_checkpoints,
++                                      std::string& error) {
++    return conversation_session_read_limits(limits, ss, g, &draft, max_tokens, max_checkpoints, error);
++}
++
+ // the draft layer's K/V included (the stage that owns the draft head, or no layer split)
+ bool conversation_snapshot_bytes(const ConversationView& view, const SessionState& ss, const ModelGeometry& g,
+                                  const QsaState& draft, size_t& bytes, std::string& error) {
+--- a/src/core/conversation_validation_test.cpp
++++ b/src/core/conversation_validation_test.cpp
+@@ -9,6 +9,7 @@
+ #include <functional>
+ #include <limits>
+ #include <cstring>
++#include <filesystem>
+ 
+ #if defined(CONVERSATION_TEST_TRANSFERS)
+ // GNU/ELF link wrapping exercises the actual restore control flow without
+@@ -228,6 +229,60 @@
+         check(incremental.kv[i].k==full.kv[i].k && incremental.kv[i].v==full.kv[i].v &&
+               incremental.kv[i].k_scale==full.kv[i].k_scale && incremental.kv[i].v_scale==full.kv[i].v_scale &&
+               incremental.kv[i].pooled==full.kv[i].pooled, "incremental and full capture agree across every payload");
++    {
++        QsaState unloaded;
++        SavedConversation meta, without_draft;
++        std::vector<SessionKvSource> sources;
++        check(!conversation_snapshot_sources(meta,sources,view,ss,g,unloaded,error) &&
++              error == "conversation snapshot: invalid K/V extent", "an explicitly supplied empty drafter remains invalid");
++        check(conversation_snapshot_sources(meta,sources,view,ss,g,nullptr,error), "disk save without an MTP drafter");
++        check(conversation_snapshot_save(without_draft,view,ss,g,nullptr,error), "capture reference without draft");
++        check(meta.kv.empty() && sources.size()==without_draft.kv.size() &&
++              sources.size()==(size_t)ss.qsa_alloc, "disk sources contain only initialized session layers");
++        for (size_t j=0;j<sources.size();++j) {
++            const auto& kv=without_draft.kv[j];
++            const std::array<const ConversationBuffer*,5> parts={&kv.k,&kv.v,&kv.k_scale,&kv.v_scale,&kv.pooled};
++            for (size_t i=0;i<parts.size();++i) {
++                std::vector<uint8_t> actual(sources[j].sizes[i]), expected(parts[i]->size());
++                check(sources[j].sizes[i]==parts[i]->size(), "no-draft source part size");
++                check(sources[j].read(i,0,actual.data(),actual.size()) &&
++                      parts[i]->read(expected.data(),0,expected.size()) && actual==expected,
++                      "no-draft disk source matches captured bytes");
++            }
++        }
++        SessionReadLimits limits, with_draft;
++        check(conversation_session_read_limits(limits,ss,g,nullptr,96,1,error), "no-draft read limits");
++        check(conversation_session_read_limits(with_draft,ss,g,draft.st,96,1,error), "draft read limits unchanged");
++        check(limits.max_kv_layers==(uint64_t)ss.qsa_alloc && limits.max_kv_bytes.size()==limits.max_kv_layers &&
++              with_draft.max_kv_layers==limits.max_kv_layers+1, "read limits omit exactly the absent draft layer");
++        for (size_t j=0;j<limits.max_kv_bytes.size();++j)
++            check(limits.max_kv_bytes[j]==with_draft.max_kv_bytes[j], "main layer byte bounds unchanged");
++        check(conversation_snapshot_validate(without_draft,ss,g,nullptr,error), "no-draft snapshot validates");
++        check(!conversation_snapshot_validate(without_draft,ss,g,draft.st,error) &&
++              !conversation_snapshot_validate(full,ss,g,nullptr,error), "draft-presence mismatch rejected in both directions");
++        check(conversation_snapshot_restore(without_draft,ss,g,nullptr,error)==ConversationRestore::restored,
++              "no-draft restore through host transfer backend");
++        const auto disk = std::filesystem::temp_directory_path() / "vw2310-no-mtp-roundtrip.bin";
++        const SessionFileIdentity identity{0x1111222233334444ull,0x5555666677778888ull};
++        size_t written=0,read=0;
++        check(session_file_write(disk.string(),meta,sources,identity,written,error),"no-MTP real disk write");
++        SavedConversation reloaded;
++        check(session_file_read(disk.string(),identity,reloaded,read,error,limits),"no-MTP bounded disk read");
++        check(written==read && reloaded.live.ids==without_draft.live.ids,"no-MTP disk token and byte counts");
++        check(conversation_snapshot_restore(reloaded,ss,g,nullptr,error)==ConversationRestore::restored,"no-MTP disk restore");
++        SavedConversation roundtrip;
++        check(conversation_snapshot_save(roundtrip,view,ss,g,nullptr,error) && roundtrip.live.gdn==without_draft.live.gdn &&
++              roundtrip.live.ple==without_draft.live.ple && roundtrip.kv.size()==without_draft.kv.size(),"no-MTP disk state roundtrip");
++        for(size_t j=0;j<roundtrip.kv.size();++j) {
++            const auto& a=roundtrip.kv[j];const auto& b=without_draft.kv[j];
++            check(a.k==b.k && a.v==b.v && a.k_scale==b.k_scale && a.v_scale==b.v_scale && a.pooled==b.pooled,"no-MTP disk KV exact bytes");
++        }
++        std::filesystem::remove(disk);
++        std::array<size_t,5> invalid_sizes{};
++        check(!conversation_kv_part_sizes(first.st,g,-1,true,invalid_sizes,error),"negative KV extent rejected");
++        check(!conversation_kv_part_sizes(first.st,g,97,true,invalid_sizes,error),"beyond-capacity KV extent rejected");
++
++    }
+     reuse = {full.kv,9,9};
+     reuse.kv.back().k.pop_back();
+     copy_calls = sync_calls = 0;
+--- a/src/program/generate.cpp
++++ b/src/program/generate.cpp
+@@ -13555,6 +13555,7 @@
+                 if (o.peer_device >= 1) { refuse("session files do not support --peer-device"); continue; }
+                 if (o.batch > 0) { refuse("session files do not support --batch (parallel requests)"); continue; }
+                 if (o.prompt_cache <= 0) { refuse("session files need --prompt-cache > 0"); continue; }
++                const auto* session_draft = use_mtp ? &mtp.kv_state() : nullptr;
+                 if (!ver.wait_commit(err)) {
+                     std::printf("ERR %s\n", err.c_str());
+                     return 1;
+@@ -13596,7 +13597,7 @@
+                             sl.state_bytes = state;
+                             sl.tokens = live.size();
+                             sl.images = live_imgs.size();
+-                            sl.kv_layers = (uint64_t) std::max<int64_t>(ss.qsa_alloc, 0) + 1;
++                            sl.kv_layers = (uint64_t) std::max<int64_t>(ss.qsa_alloc, 0) + (session_draft ? 1 : 0);
+                         }
+                         const uint64_t floor = (uint64_t) o.conversation_cache_min_free_mib << 20;
+                         if (o.session_save_reclaim) {
+@@ -13634,7 +13635,7 @@
+                         std::vector<strata::core::SessionKvSource> sources;
+                         // the live running state comes off the device in one synchronous copy
+                         blocking("capture", sl.state_bytes == UINT64_MAX ? 0 : sl.state_bytes);
+-                        if (!strata::core::conversation_snapshot_sources(meta, sources, view, ss, g, mtp.kv_state(),
++                        if (!strata::core::conversation_snapshot_sources(meta, sources, view, ss, g, session_draft,
+                                                                          err)) {
+                             refuse(err, strata::core::SessionError::io);
+                             continue;
+@@ -13680,7 +13681,7 @@
+                             return false;
+                         };
+                         if (!strata::core::conversation_session_read_limits(
+-                                limits, ss, g, mtp.kv_state(), (uint64_t) o.max_context,
++                                limits, ss, g, session_draft, (uint64_t) o.max_context,
+                                 (uint64_t) std::max(o.prompt_cache, 1), err)) {
+                             refuse(err, strata::core::SessionError::io);
+                             continue;
+@@ -13697,7 +13698,7 @@
+                     const double read_ms = ms();
+                     // the whole image against this engine, still without any device write
+                     blocking("validate", bytes);
+-                    if (!strata::core::conversation_snapshot_validate(image, ss, g, mtp.kv_state(), err)) {
++                    if (!strata::core::conversation_snapshot_validate(image, ss, g, session_draft, err)) {
+                         refuse(err);
+                         continue;
+                     }
+@@ -13710,7 +13711,7 @@
+                     live_ok = false;
+                     // host -> device in synchronous copies of the whole state: one bounded allowance
+                     blocking("transfer", bytes);
+-                    if (strata::core::conversation_snapshot_restore(image, ss, g, mtp.kv_state(), err) !=
++                    if (strata::core::conversation_snapshot_restore(image, ss, g, session_draft, err) !=
+                         strata::core::ConversationRestore::restored) {
+                         // validated above: a failure here is a transfer failure, after device writes began - never
+                         // decode from a partial state; the server starts the engine again

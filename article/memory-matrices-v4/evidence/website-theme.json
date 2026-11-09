@@ -1,0 +1,25 @@
+{
+  "source": "site-candidate/src/styles/global.css and BaseLayout.astro",
+  "fonts": {
+    "sans": "IBM Plex Sans, -apple-system, sans-serif",
+    "mono": "JetBrains Mono, monospace"
+  },
+  "dark": {
+    "bg": "#15171c",
+    "card": "#1b1e25",
+    "border": "#2c303a",
+    "text": "#e9eaee",
+    "muted": "#aab0bc",
+    "accent": "#a78bfa"
+  },
+  "light": {
+    "bg": "#f7f6f2",
+    "card": "#fffefb",
+    "border": "#dfdbd1",
+    "text": "#21262e",
+    "muted": "#555b66",
+    "accent": "#6d3df0"
+  },
+  "radius_px": 8,
+  "gradient": false
+}

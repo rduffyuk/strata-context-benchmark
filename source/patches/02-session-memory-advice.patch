@@ -1,0 +1,187 @@
+--- a/src/program/generate.cpp
++++ b/src/program/generate.cpp
+@@ -29,6 +29,8 @@
+ #include "strata/core/conversation_snapshot.hpp"
+ #include "strata/core/conversation_file.hpp"
+ #include "strata/core/session_save_reclaim.hpp"
++#include "strata/core/session_memory_admission.hpp"
++#include "strata/core/cold_file_span.hpp"
+ #include "strata/core/conversation_memory.hpp"
+ #include "strata/core/auto_cache.hpp"
+ #include "strata/core/ple_residency.hpp"
+@@ -982,7 +984,7 @@
+                  "                       the copy it would supersede, so a turn that grew by a few hundred tokens does not\n"
+                  "                       write a whole snapshot that the next turn drops (default 0 = park every turn)\n"
+                  "  --session-min-free-mib N  --serve: disk space a SAVE must leave free (default 4096; 0 = no check)\n"
+-                 "  --session-save-reclaim  --serve: reclaim unpinned host caches if SAVE needs RAM (opt-in)\n"
++                 "  --session-save-reclaim  --serve: reclaim host caches for SAVE/RESTORE admission (opt-in)\n"
+                  "  --vram-elastic       --serve (#533, opt-in, NVIDIA): the expert cache in segments (--vram-segment-mib,\n"
+                  "                       default 512), so the command `VRAM <reserve_mib>` (the server's POST /v1/vram) can\n"
+                  "                       give VRAM back to other programs between requests and take it back later\n"
+@@ -13573,6 +13575,21 @@
+                     refuse(std::string("session identity: ") + e.what(), strata::core::SessionError::io);
+                     continue;
+                 }
++                bool session_cold_attempted = false;
++                auto session_admit = [&](uint64_t need, uint64_t floor,
++                                         std::optional<strata::core::HostMemoryReading>& mem) {
++                    return strata::core::session_memory_admit(need, floor, o.session_save_reclaim,
++                        session_cold_attempted,
++                        [&] { mem = strata::core::sample_host_memory(); return mem; },
++                        [&](const auto& enough) {
++                            blocking("session_memory", 0);
++                            const auto advised = strata::core::detail::cool_model_file_cache(src.model_inputs(), enough);
++                            std::fprintf(stderr, "strata serve: session memory: advised %llu mapped file bytes cold; "
++                                                 "floor unchanged; admission resampled\n",
++                                         (unsigned long long) advised);
++                            return advised;
++                        });
++                };
+                 if (save) {
+                     if (!live_ok || live.empty()) { refuse("no complete session to save"); continue; }
+                     size_t bytes = 0, kept = 0;
+@@ -13614,9 +13631,8 @@
+                             }
+                         }
+                         auto admit = [&](uint64_t need, std::string& why) {
+-                            const auto mem = strata::core::sample_host_memory();
+-                            const std::optional<uint64_t> avail = mem ? std::optional<uint64_t>(mem->available) : std::nullopt;
+-                            if (strata::core::conversation_memory_admit(avail, need, floor)) return true;
++                            std::optional<strata::core::HostMemoryReading> mem;
++                            if (session_admit(need, floor, mem)) return true;
+                             why = "not enough RAM to save the session (" +
+                                   (need == UINT64_MAX ? std::string("unknown") : std::to_string(need >> 20)) +
+                                   " MiB plus a floor of " + std::to_string((long long) o.conversation_cache_min_free_mib) +
+@@ -13671,10 +13687,9 @@
+                         strata::core::SessionReadLimits limits;
+                         limits.progress = moving;
+                         const uint64_t floor = (uint64_t) o.conversation_cache_min_free_mib << 20;
+-                        limits.admit = [floor, &o](uint64_t need, std::string& why) {
+-                            const auto mem = strata::core::sample_host_memory();
+-                            const std::optional<uint64_t> avail = mem ? std::optional<uint64_t>(mem->available) : std::nullopt;
+-                            if (strata::core::conversation_memory_admit(avail, need, floor)) return true;
++                        limits.admit = [floor, &o, &session_admit](uint64_t need, std::string& why) {
++                            std::optional<strata::core::HostMemoryReading> mem;
++                            if (session_admit(need, floor, mem)) return true;
+                             why = "not enough RAM to read it (" + std::to_string(need >> 20) + " MiB plus a floor of " +
+                                   std::to_string((long long) o.conversation_cache_min_free_mib) + " MiB needed, " +
+                                   ram_note(mem) + ")";
+--- /dev/null
++++ b/include/strata/core/session_memory_admission.hpp
+@@ -0,0 +1,25 @@
++#pragma once
++#include "strata/core/conversation_memory.hpp"
++namespace strata::core {
++// Reclassify only the engine's file mappings before rechecking the existing admission rule.
++// Advisory byte counts never count as available RAM. One bounded attempt per session operation.
++template<class Probe, class Cool>
++bool session_memory_admit(uint64_t need, uint64_t floor, bool enabled, bool& cooled,
++                          Probe probe, Cool cool) {
++    auto memory = probe();
++    auto admits = [&] {
++        return conversation_memory_admit(memory ? std::optional<uint64_t>(memory->available) : std::nullopt,
++                                         need, floor);
++    };
++    if (admits()) return true;
++    if (!enabled || cooled || !memory || memory->source != MemorySource::cgroup ||
++        need > UINT64_MAX - floor) return false;
++    cooled = true;
++    cool([&] {
++        memory = probe();
++        return !memory || memory->source != MemorySource::cgroup || admits();
++    });
++    memory = probe();
++    return memory && memory->source == MemorySource::cgroup && admits();
++}
++}
+--- /dev/null
++++ b/include/strata/core/cold_file_span.hpp
+@@ -0,0 +1,88 @@
++#pragma once
++#include <algorithm>
++#include <cstdint>
++#include <limits>
++#include <string>
++#include <utility>
++#include <vector>
++#include <array>
++#include <chrono>
++#include <cstdio>
++#include <fstream>
++#include <thread>
++#if defined(__linux__)
++#include <sys/mman.h>
++#include <unistd.h>
++#include <sys/stat.h>
++#include <sys/sysmacros.h>
++#endif
++namespace strata::core::detail {
++// Caller supplies an owned, read-only regular-file mmap, never an anonymous/pinned arena.
++// The mapping remains valid and its bytes do not change. Count is advice, not RAM freed.
++template<class Stop>
++uint64_t cold_file_span(const uint8_t* base, uint64_t bytes, Stop stop) {
++#if defined(__linux__) && defined(MADV_COLD)
++    const long page = sysconf(_SC_PAGESIZE);
++    const auto address = reinterpret_cast<uintptr_t>(base);
++    if (!base || !bytes || page <= 0 || address % static_cast<uintptr_t>(page) ||
++        bytes > std::numeric_limits<size_t>::max() ||
++        bytes > std::numeric_limits<uintptr_t>::max() - address) return 0;
++    uint64_t advised = 0;
++    while (advised < bytes && !stop()) {
++        const size_t n = static_cast<size_t>(std::min<uint64_t>(bytes - advised, 256ull << 20));
++        if (madvise(const_cast<uint8_t*>(base + advised), n, MADV_COLD) != 0) break;
++        advised += n;
++    }
++    return advised;
++#else
++    (void) base; (void) bytes; (void) stop;
++    return 0;
++#endif
++}
++template<class Stop, class Advise>
++uint64_t advise_model_mappings(const std::vector<std::pair<std::string,std::string>>& inputs,
++                              Stop stop, Advise advise) {
++#if defined(__linux__) && defined(MADV_COLD)
++    if (stop()) return 0;
++    using Identity = std::array<unsigned long long,3>;
++    std::vector<Identity> allowed;
++    for (const auto& input : inputs) {
++        struct stat st{};
++        if (::stat(input.second.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
++        const Identity id{static_cast<unsigned long long>(major(st.st_dev)),
++                          static_cast<unsigned long long>(minor(st.st_dev)),
++                          static_cast<unsigned long long>(st.st_ino)};
++        if (std::find(allowed.begin(),allowed.end(),id)==allowed.end()) allowed.push_back(id);
++    }
++    if (allowed.empty()) return 0;
++    std::ifstream maps("/proc/self/maps");
++    uint64_t advised=0;
++    for (std::string line; !stop() && std::getline(maps,line);) {
++        unsigned long start=0,end=0;unsigned long long offset=0,inode=0;
++        unsigned int device_major=0,device_minor=0;char permissions[5]{};
++        if (std::sscanf(line.c_str(),"%lx-%lx %4s %llx %x:%x %llu",&start,&end,permissions,
++                        &offset,&device_major,&device_minor,&inode)!=7 || end<=start) continue;
++        if (permissions[0]!='r' || permissions[1]!='-' || permissions[2]!='-' ||
++            (permissions[3]!='p' && permissions[3]!='s') || inode==0) continue;
++        const Identity id{device_major,device_minor,inode};
++        if (std::find(allowed.begin(),allowed.end(),id)==allowed.end()) continue;
++        advised+=advise(reinterpret_cast<const uint8_t*>(start),static_cast<uint64_t>(end-start));
++    }
++    return advised;
++#else
++    (void) inputs; (void) stop; (void) advise;return 0;
++#endif
++}
++template<class Enough>
++uint64_t cool_model_file_cache(const std::vector<std::pair<std::string,std::string>>& inputs, Enough enough) {
++#if defined(__linux__) && defined(MADV_COLD)
++    const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(2);
++    auto stop=[&]{return std::chrono::steady_clock::now()>=deadline || enough();};
++    const auto advised=advise_model_mappings(inputs,stop,[&](const uint8_t* base,uint64_t bytes){return cold_file_span(base,bytes,stop);});
++    while (advised && !stop()) std::this_thread::sleep_for(std::chrono::milliseconds(50));
++    return advised;
++#else
++    (void) inputs;(void) enough;return 0;
++#endif
++}
++}

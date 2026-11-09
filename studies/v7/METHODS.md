@@ -1,0 +1,9 @@
+# Method and limits
+
+Five sessions used a deterministic schedule: per session and level, seed `2353 + session * 1000000 + level` shuffles ten fixture indices; warmup pair 00 uses fixture 00 followed by ten measured pairs. Each pair runs reset, cold and cached, in that order. Sustained uses seed `2353 + session` with the same warmup and ten measured pairs. The contexts target 2,048, 8,192, 24,576, 32,768, 65,536, 131,072, 196,608 and 261,112 input tokens within a 262,144 window, with 1,024 output tokens and eight internal reserve tokens. Reset requests have an eight-token output limit. Request settings are retained per call.
+
+There are 440 resets and 85 warmups excluded from the 850 measured responses: 800 context observations in 16 groups and 50 sustained responses in one group. Each condition contains ten prompt identities repeated over five sessions: n=50 observations, not 50 independent prompts. Sustained requests use 50 input and up to 1,024 output tokens, are not correctness-scored, and require at least 512 output tokens for timing eligibility.
+
+The historical primary result uses Python `json.loads` and equality with the expected object. It is 0/800. A separately labelled post-hoc diagnostic removes only an enclosing Markdown JSON fence before applying the same equality check: 800/800. No other repair is performed. Per-group n, median, minimum and maximum are compared for time to first generated delta, client wall time, native prefill and decode times, computed read and decode rates, and logical and physical read byte deltas. The sustained median decode rate is approximately 41.614 tokens/s.
+
+The evidence does not establish multi-day reliability, reasoning quality, general structured-output performance, or a causal explanation of cache behaviour. Native/API token parity is checked; reported client timings are observation bounds. No inference, network, or GPU is used during replay.

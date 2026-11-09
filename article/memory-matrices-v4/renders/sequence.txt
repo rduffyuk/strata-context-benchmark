@@ -1,0 +1,7 @@
+file 'gpu.webp'
+duration 3
+file 'ram.webp'
+duration 3
+file 'ssd.webp'
+duration 3
+file 'ssd.webp'

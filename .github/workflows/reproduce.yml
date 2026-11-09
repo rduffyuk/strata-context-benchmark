@@ -1,0 +1,20 @@
+name: Offline reproduction
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Verify repository metadata and integrity rejection cases
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+      - name: Replay all scientific scores and timings
+        run: python3 reproduce_all.py
+      - name: Verify retained memory reanalysis
+        run: python3 article/memory-matrices-v4/reproduce_ram.py
+      - name: Check memory explanation arithmetic and state
+        run: node article/memory-matrices-v4/widget/test.cjs

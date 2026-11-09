@@ -1,0 +1,119 @@
+738: KvPlan kv_plan(const QsaShapes& s, int64_t max_cells, int64_t ring_cells) {
+739:     KvPlan p;
+740:     p.pages = (max_cells + s.page_size - 1) / s.page_size;
+741:     p.slots = p.pages;
+742:     p.pooled_rows = max_cells / s.idx_block + 2;
+743:     if (g_kv_resident <= 0 || ring_cells < 0) return p;   // ring_cells < 0: always fully resident
+744:     // A/B only: STRATA_KV_RING_OFF keeps the drafter fully resident, STRATA_KV_MAIN_OFF the main layers
+745:     static const bool ring_off = std::getenv("STRATA_KV_RING_OFF") != nullptr;
+746:     static const bool main_off = std::getenv("STRATA_KV_MAIN_OFF") != nullptr;
+747:     if (ring_cells > 0 ? ring_off : main_off) return p;
+748:     if (ring_cells > 0) {
+749:         const int64_t r = (ring_cells + s.page_size - 1) / s.page_size;
+750:         if (r < p.pages) { p.mode = 2; p.slots = r; p.pooled_rows = 2; }   // the drafter has no indexer
+751:     } else {
+752:         const int64_t r = (std::max(g_kv_resident, qsa_kv_resident_min()) + s.page_size - 1) / s.page_size;
+753:         if (r < p.pages) { p.mode = 1; p.slots = r; }
+754:     }
+755:     return p;
+756: }
+757: uint64_t kv_pool_bytes(const QsaShapes& s, int64_t pages, bool hybrid, bool int8) {
+758:     if (hybrid) {   // K8V4: the INT8 K half (codes + scales) plus the Q4_0 V half (kv_q4.hpp's rotation)
+759:         const uint64_t rows = (uint64_t) pages * s.page_size * s.n_head_kv;
+760:         return rows * (uint64_t) s.head_dim + rows * (uint64_t) (s.head_dim / strata::kernels::KV_Q8_GROUP) * 2 +
+761:                rows * strata::kernels::kv_q4_bytes_per_head((int) s.head_dim) + 64;
+762:     }
+763:     if (g_kv_q4) return (uint64_t) pages * s.page_size * strata::kernels::kv_q4_bytes_per_cell(s) + 64;
+764:     return int8 ? (uint64_t) pages * s.page_size * strata::kernels::kv_q8_bytes_per_cell(s) + 64
+765:                 : (uint64_t) pages * s.n_head_kv * s.page_size * s.head_dim * 2 * 2;
+766: }
+767: }  // namespace
+768: 
+769: void qsa_set_kv_resident(int64_t cells) { g_kv_resident = cells > 0 ? cells : 0; }
+770: int64_t qsa_kv_resident() { return g_kv_resident; }
+771: int64_t qsa_kv_resident_min() { return 20480; }
+772: uint64_t qsa_kv_host_bytes() { return g_kv_host_bytes; }
+773: 
+774: uint64_t qsa_state_bytes(const ModelGeometry& g, int64_t max_cells, bool with_rope, int64_t ring_cells) {
+775:     const QsaShapes s = qsa_shapes(g);
+776:     const KvPlan p = kv_plan(s, max_cells, ring_cells);
+777:     uint64_t n = 0;
+778:     if (!(g_kv_elastic && p.mode == 0))   // the elastic K/V's pools are in their own VMM range
+779:         n += kv_pool_bytes(s, p.slots, g_kv_hybrid && ring_cells <= 0,
+780:                            g_kv_int8 || g_kv_hybrid) + 4 * 16;   // K/V pools (the VRAM slots)
+781:     n += (uint64_t) p.pages * 4;                                               // page_table
+782:     if (p.mode == 1) n += strata::kernels::kv_stream_map_bytes(p.slots) + 6 * 16;   // the residency map
+783:     n += (uint64_t) (s.idx_block - 1) * s.idx_dim * 4;                         // tail
+784:     n += (uint64_t) s.idx_dim * 4;                                             // dead
+785:     n += (uint64_t) p.pooled_rows * s.idx_dim * 4;                             // pooled
+786:     n += 16;                                                                   // block_pos
+787:     if (with_rope) n += (uint64_t) max_cells * (s.n_rot / 2) * 4 * 2;          // cos + sin tables
+788:     n += strata::kernels::qsa_step_bytes() + 16;                               // counts and aligned attention status
+789:     n += (uint64_t) s.n_head * 4;                                              // pos_dev
+790:     return align_up16(n) + 256;
+791: }
+792: 
+793: uint64_t qsa_state_init(const ModelGeometry& g, int64_t max_cells, void* base, QsaState& st,
+794:                         const QsaState* share_rope, int64_t ring_cells) {
+795:     const QsaShapes s = qsa_shapes(g);
+796:     const KvPlan p = kv_plan(s, max_cells, ring_cells);
+797:     const int64_t pages = p.pages;
+882:     st.idx_pooled_rows = p.pooled_rows;
+883:     st.idx_pooled = c.take<float>((uint64_t) p.pooled_rows * s.idx_dim);
+884:     st.idx_block_pos = c.take<int32_t>(1);
+885:     if (share_rope != nullptr) {
+886:         st.cos_tab = share_rope->cos_tab;
+887:         st.sin_tab = share_rope->sin_tab;
+888:     } else {
+889:         st.cos_tab = c.take<float>((uint64_t) max_cells * (s.n_rot / 2));
+890:         st.sin_tab = c.take<float>((uint64_t) max_cells * (s.n_rot / 2));
+891:     }
+892:     st.step = c.take<int32_t>((uint64_t) strata::kernels::kStepCount);
+893:     st.attention_status = c.take<int32_t>(1);
+894:     st.pos_dev = c.take<int32_t>((uint64_t) s.n_head);
+895:     // the pinned staging the uploads copy FROM - see the note on `host_step` in the header
+896:     if (strata::core::host_alloc_guarded((void**) &st.host_step, strata::kernels::qsa_step_bytes() + sizeof(int32_t),
+897:                       cudaHostAllocMapped | cudaHostAllocPortable) != cudaSuccess ||
+898:         strata::core::host_alloc_guarded((void**) &st.host_pos, (size_t) s.n_head * 4, cudaHostAllocMapped | cudaHostAllocPortable) !=
+899:             cudaSuccess) {
+900:         return 0;   // the caller sees a zero byte count; a half-built state is worse than none
+901:     }
+902:     st.host_step[strata::kernels::kStepCount] = 0;
+903:     // KV streaming: the authoritative K/V of every cell, pinned and device-mapped, in the identity layout
+904:     st.host = strata::kernels::KvHostPools{};
+905:     if (p.mode != 0) {
+906:         const uint64_t hrows = (uint64_t) pages * s.n_head_kv * s.page_size;
+907:         const uint64_t bytes = (uint64_t) pages * strata::kernels::kv_block_bytes(s, qsa_kv_format(st)) + 4 * 256;
+908:         uint8_t* h = nullptr;
+909:         uint8_t* d = nullptr;
+910:         if ((h = kv_host_alloc(bytes)) == nullptr ||
+911:             cudaHostGetDevicePointer((void**) &d, h, 0) != cudaSuccess) {
+912:             // both cudaHostRegister and cudaHostAlloc were refused (kv_host_alloc): usually not enough free RAM
+913:             if (p.mode == 1) std::fprintf(stderr, "strata: KV streaming: cannot pin %.2f GiB of RAM for a layer's KV copy "
+914:                                  "(%.2f GiB pinned so far): RAM or the driver refused to pin it - lower the context, "
+915:                                  "or run without --kv-resident\n", (double) bytes / 1073741824.0,
+916:                                  (double) g_kv_host_bytes / 1073741824.0);
+917:             return 0;
+918:         }
+919:         g_kv_host_bytes += bytes;
+920:         Cursor hc{d};
+921:         if (st.kv_hybrid) {
+922:             st.host.k_q = hc.take<int8_t>(hrows * s.head_dim);
+923:             st.host.k_scale = hc.take<uint16_t>(hrows * (s.head_dim / strata::kernels::KV_Q8_GROUP));
+924:             st.host.v_q4 = hc.take<uint8_t>(hrows * q4_row);
+925:         } else if (st.kv_q4) {
+926:             st.host.k_q4 = hc.take<uint8_t>(hrows * q4_row);
+927:             st.host.v_q4 = hc.take<uint8_t>(hrows * q4_row);
+928:         } else if (st.kv_int8) {
+929:             st.host.k_q = hc.take<int8_t>(hrows * s.head_dim);
+930:             st.host.v_q = hc.take<int8_t>(hrows * s.head_dim);
+931:             st.host.k_scale = hc.take<uint16_t>(hrows * (s.head_dim / strata::kernels::KV_Q8_GROUP));
+932:             st.host.v_scale = hc.take<uint16_t>(hrows * (s.head_dim / strata::kernels::KV_Q8_GROUP));
+933:         } else {
+934:             st.host.k_pool = hc.take<uint16_t>(hrows * s.head_dim);
+935:             st.host.v_pool = hc.take<uint16_t>(hrows * s.head_dim);
+936:         }
+937:     }
+938:     // THE ROPE TABLE IS BUILT ON THE HOST IN FLOAT64 and uploaded once, because the reference computes its
+939:     // frequencies in float64 and reproducing that on device means double-precision `pow`/`cos` that need not
+940:     // agree with the host's libm.  A table shorter than the sequence would have the rotation read past it.

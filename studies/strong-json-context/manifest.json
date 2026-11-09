@@ -1,0 +1,9 @@
+{
+  "reproduce.py": "394bd009e78eaaf6d279f8c09103c54d4a260ee5aef2f496c66b45cb81779705",
+  "answer-schema.json": "3be96c2b96c182332847add66de2d29d9786308ab3726596f5bfb5711b0fe978",
+  "README.md": "f1a8f730650ff8202df4fba75a22af589da853cefe664249594ab40d627a37b1",
+  "observed-responses.json": "aae947884b7da1827800d9eec210ed1d886efbdcce09c7d69dcc0f8b266e4bbe",
+  "cases.json": "84018bee658681818c0bd62c16b2bae4b129b524f3fd8521b4db3b6e7f26b530",
+  "method.json": "07e4220a71ac9b1e746047115945fab28053ddfea57638709c771d6934a7f8b2",
+  "results.csv": "5f7c6b927b31056261b64b610aa08f8e3d91c5073ce1d9ec057a626ba438fec4"
+}
