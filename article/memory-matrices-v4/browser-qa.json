@@ -1,0 +1,16 @@
+{
+  "desktop_width": 760,
+  "ram_height_before_added_KV_line": 668,
+  "mobile_inner_width": 353,
+  "final_mobile_ram_height": 830,
+  "horizontal_overflow": false,
+  "pool_cells": {
+    "gpu": 16,
+    "ram": 63,
+    "ssd": 64
+  },
+  "parent_theme_light_switch": "PASS",
+  "captures": "native Chrome screenshots; explanatory timing, not measured traffic",
+  "preview_build": "PASS",
+  "default_route_guard": "PASS"
+}

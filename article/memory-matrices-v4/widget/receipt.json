@@ -1,0 +1,13 @@
+{
+  "scope": "VW-2353 memory matrices v4",
+  "facts": "../memory-facts.json",
+  "theme": "../evidence/website-theme.json",
+  "verification": "node test.cjs and node --check widget.js passed; updated mobile browser QA pending",
+  "sha256": {
+    "index.html": "e49dcae66836175e6eb428c5017564d7ced4ffd7665d2fadfa9625f59060e303",
+    "style.css": "dbffc35fb315d17b4647296cc638e66e4cae74c1a2d8f79f9e650b06ff119eaa",
+    "model.js": "6103a3a95772a308c83ce7aa0deb9c3d053e7b118cd477f2fe00aefffef49ddc",
+    "widget.js": "617b580066ef7d77d9f88f69c8fe1b6ed7b524ac90025ddb905d43f8c9bdf521",
+    "test.cjs": "393695040c24d9e0dc6043beece081452b87c6fe4235972cdaafc6bf86dec294"
+  }
+}

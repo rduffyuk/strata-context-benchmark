@@ -1,0 +1,59 @@
+{
+  "upstream_revision": "870aedd9e1ebe1c91f94da93b59af17729f6c5c0",
+  "patch_apply": [
+    {
+      "patch": "rebased-save-fix.diff",
+      "sha256": "aeeeff26a2c93f981d4f0dc035d55f51aec6d975fc1de83e4a8dd65cddd5846e",
+      "exit_code": 0,
+      "output": "patching file 'include/strata/core/conversation_snapshot.hpp'\npatching file 'src/core/conversation_snapshot_test.cpp'\npatching file 'src/core/conversation_state.cpp'\npatching file 'src/core/conversation_validation_test.cpp'\npatching file 'src/program/generate.cpp'\n"
+    },
+    {
+      "patch": "native-session-memory.patch",
+      "sha256": "48633232030ca75a23b2ed47e60f8c3686d6465cb4fb4b4a1714553a4a70fbd4",
+      "exit_code": 0,
+      "output": "patching file 'src/program/generate.cpp'\npatching file 'include/strata/core/session_memory_admission.hpp'\npatching file 'include/strata/core/cold_file_span.hpp'\n"
+    }
+  ],
+  "deployed_source_hash_comparison": {
+    "src/program/generate.cpp": {
+      "expected": "da38a36b73b10c08b33c2ede55c29e12f3d852eb8e6592bcd7a4d2221042c456",
+      "actual": "da38a36b73b10c08b33c2ede55c29e12f3d852eb8e6592bcd7a4d2221042c456",
+      "match": true
+    },
+    "include/strata/core/cold_file_span.hpp": {
+      "expected": "d6d3cc0e156aa9e41ba9074781913a97af8c3d07ae46e0dacd76a689a3b3e2b3",
+      "actual": "d6d3cc0e156aa9e41ba9074781913a97af8c3d07ae46e0dacd76a689a3b3e2b3",
+      "match": true
+    },
+    "include/strata/core/session_memory_admission.hpp": {
+      "expected": "6362c30dff4aab5dbcac573c163dd3cdc6e4cb8ebc77c41f6011aa27e70eb209",
+      "actual": "6362c30dff4aab5dbcac573c163dd3cdc6e4cb8ebc77c41f6011aa27e70eb209",
+      "match": true
+    }
+  },
+  "fresh_compilation": false,
+  "fresh_inference": false,
+  "source_archive_byte_match_to_historical_archive": false,
+  "no_mtp_native_source_comparison": {
+    "include/strata/core/conversation_snapshot.hpp": {
+      "archived_build_source_sha256": "28540d07de1a8f9b2c0c6d518b9b9bc91e8ba7d0a47bab9c8e55cea5c843b255",
+      "reconstructed_sha256": "28540d07de1a8f9b2c0c6d518b9b9bc91e8ba7d0a47bab9c8e55cea5c843b255",
+      "match": true
+    },
+    "src/core/conversation_snapshot_test.cpp": {
+      "archived_build_source_sha256": "41112d98b23e7136ae0f5909b52074dad6da288d67d2a176db4411662c50d17c",
+      "reconstructed_sha256": "41112d98b23e7136ae0f5909b52074dad6da288d67d2a176db4411662c50d17c",
+      "match": true
+    },
+    "src/core/conversation_state.cpp": {
+      "archived_build_source_sha256": "aeab997febe6af74444eb28e84725ab66a491bf63455f132b46ebb2bade1fc65",
+      "reconstructed_sha256": "aeab997febe6af74444eb28e84725ab66a491bf63455f132b46ebb2bade1fc65",
+      "match": true
+    },
+    "src/core/conversation_validation_test.cpp": {
+      "archived_build_source_sha256": "a4de0524b5ab3a1ba3fea101099e70b5bfce396ac919491040807cc405d5382e",
+      "reconstructed_sha256": "a4de0524b5ab3a1ba3fea101099e70b5bfce396ac919491040807cc405d5382e",
+      "match": true
+    }
+  }
+}

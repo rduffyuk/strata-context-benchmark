@@ -1,0 +1,1761 @@
+{
+  "campaign": "VW-2353-strong-json-context-20261109-r2",
+  "question": "Does the explicit exact-field stronger JSON instruction produce raw format-compliant and exact retrieval responses at all eight context lengths, cold and prefix-cached?",
+  "levels": [
+    2048,
+    8192,
+    24576,
+    32768,
+    65536,
+    131072,
+    196608,
+    261112
+  ],
+  "prompts_per_context_cache_condition": 10,
+  "measurements_planned": 160,
+  "resets_planned": 80,
+  "maximum_requests": 240,
+  "deadline_seconds": 14400,
+  "per_request_timeout_seconds": 1700,
+  "automatic_retry": false,
+  "schedule": [
+    {
+      "id": "l2048-p00-reset",
+      "level": 2048,
+      "prompt_index": 0,
+      "prompt_id": "l2048-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p00-cold",
+      "level": 2048,
+      "prompt_index": 0,
+      "prompt_id": "l2048-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p00-cached",
+      "level": 2048,
+      "prompt_index": 0,
+      "prompt_id": "l2048-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p01-reset",
+      "level": 2048,
+      "prompt_index": 1,
+      "prompt_id": "l2048-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p01-cold",
+      "level": 2048,
+      "prompt_index": 1,
+      "prompt_id": "l2048-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p01-cached",
+      "level": 2048,
+      "prompt_index": 1,
+      "prompt_id": "l2048-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p02-reset",
+      "level": 2048,
+      "prompt_index": 2,
+      "prompt_id": "l2048-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p02-cold",
+      "level": 2048,
+      "prompt_index": 2,
+      "prompt_id": "l2048-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p02-cached",
+      "level": 2048,
+      "prompt_index": 2,
+      "prompt_id": "l2048-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p03-reset",
+      "level": 2048,
+      "prompt_index": 3,
+      "prompt_id": "l2048-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p03-cold",
+      "level": 2048,
+      "prompt_index": 3,
+      "prompt_id": "l2048-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p03-cached",
+      "level": 2048,
+      "prompt_index": 3,
+      "prompt_id": "l2048-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p04-reset",
+      "level": 2048,
+      "prompt_index": 4,
+      "prompt_id": "l2048-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p04-cold",
+      "level": 2048,
+      "prompt_index": 4,
+      "prompt_id": "l2048-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p04-cached",
+      "level": 2048,
+      "prompt_index": 4,
+      "prompt_id": "l2048-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p05-reset",
+      "level": 2048,
+      "prompt_index": 5,
+      "prompt_id": "l2048-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p05-cold",
+      "level": 2048,
+      "prompt_index": 5,
+      "prompt_id": "l2048-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p05-cached",
+      "level": 2048,
+      "prompt_index": 5,
+      "prompt_id": "l2048-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p06-reset",
+      "level": 2048,
+      "prompt_index": 6,
+      "prompt_id": "l2048-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p06-cold",
+      "level": 2048,
+      "prompt_index": 6,
+      "prompt_id": "l2048-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p06-cached",
+      "level": 2048,
+      "prompt_index": 6,
+      "prompt_id": "l2048-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p07-reset",
+      "level": 2048,
+      "prompt_index": 7,
+      "prompt_id": "l2048-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p07-cold",
+      "level": 2048,
+      "prompt_index": 7,
+      "prompt_id": "l2048-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p07-cached",
+      "level": 2048,
+      "prompt_index": 7,
+      "prompt_id": "l2048-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p08-reset",
+      "level": 2048,
+      "prompt_index": 8,
+      "prompt_id": "l2048-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p08-cold",
+      "level": 2048,
+      "prompt_index": 8,
+      "prompt_id": "l2048-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p08-cached",
+      "level": 2048,
+      "prompt_index": 8,
+      "prompt_id": "l2048-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l2048-p09-reset",
+      "level": 2048,
+      "prompt_index": 9,
+      "prompt_id": "l2048-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l2048-p09-cold",
+      "level": 2048,
+      "prompt_index": 9,
+      "prompt_id": "l2048-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l2048-p09-cached",
+      "level": 2048,
+      "prompt_index": 9,
+      "prompt_id": "l2048-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p00-reset",
+      "level": 8192,
+      "prompt_index": 0,
+      "prompt_id": "l8192-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p00-cold",
+      "level": 8192,
+      "prompt_index": 0,
+      "prompt_id": "l8192-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p00-cached",
+      "level": 8192,
+      "prompt_index": 0,
+      "prompt_id": "l8192-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p01-reset",
+      "level": 8192,
+      "prompt_index": 1,
+      "prompt_id": "l8192-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p01-cold",
+      "level": 8192,
+      "prompt_index": 1,
+      "prompt_id": "l8192-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p01-cached",
+      "level": 8192,
+      "prompt_index": 1,
+      "prompt_id": "l8192-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p02-reset",
+      "level": 8192,
+      "prompt_index": 2,
+      "prompt_id": "l8192-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p02-cold",
+      "level": 8192,
+      "prompt_index": 2,
+      "prompt_id": "l8192-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p02-cached",
+      "level": 8192,
+      "prompt_index": 2,
+      "prompt_id": "l8192-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p03-reset",
+      "level": 8192,
+      "prompt_index": 3,
+      "prompt_id": "l8192-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p03-cold",
+      "level": 8192,
+      "prompt_index": 3,
+      "prompt_id": "l8192-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p03-cached",
+      "level": 8192,
+      "prompt_index": 3,
+      "prompt_id": "l8192-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p04-reset",
+      "level": 8192,
+      "prompt_index": 4,
+      "prompt_id": "l8192-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p04-cold",
+      "level": 8192,
+      "prompt_index": 4,
+      "prompt_id": "l8192-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p04-cached",
+      "level": 8192,
+      "prompt_index": 4,
+      "prompt_id": "l8192-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p05-reset",
+      "level": 8192,
+      "prompt_index": 5,
+      "prompt_id": "l8192-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p05-cold",
+      "level": 8192,
+      "prompt_index": 5,
+      "prompt_id": "l8192-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p05-cached",
+      "level": 8192,
+      "prompt_index": 5,
+      "prompt_id": "l8192-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p06-reset",
+      "level": 8192,
+      "prompt_index": 6,
+      "prompt_id": "l8192-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p06-cold",
+      "level": 8192,
+      "prompt_index": 6,
+      "prompt_id": "l8192-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p06-cached",
+      "level": 8192,
+      "prompt_index": 6,
+      "prompt_id": "l8192-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p07-reset",
+      "level": 8192,
+      "prompt_index": 7,
+      "prompt_id": "l8192-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p07-cold",
+      "level": 8192,
+      "prompt_index": 7,
+      "prompt_id": "l8192-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p07-cached",
+      "level": 8192,
+      "prompt_index": 7,
+      "prompt_id": "l8192-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p08-reset",
+      "level": 8192,
+      "prompt_index": 8,
+      "prompt_id": "l8192-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p08-cold",
+      "level": 8192,
+      "prompt_index": 8,
+      "prompt_id": "l8192-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p08-cached",
+      "level": 8192,
+      "prompt_index": 8,
+      "prompt_id": "l8192-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l8192-p09-reset",
+      "level": 8192,
+      "prompt_index": 9,
+      "prompt_id": "l8192-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l8192-p09-cold",
+      "level": 8192,
+      "prompt_index": 9,
+      "prompt_id": "l8192-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l8192-p09-cached",
+      "level": 8192,
+      "prompt_index": 9,
+      "prompt_id": "l8192-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p00-reset",
+      "level": 24576,
+      "prompt_index": 0,
+      "prompt_id": "l24576-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p00-cold",
+      "level": 24576,
+      "prompt_index": 0,
+      "prompt_id": "l24576-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p00-cached",
+      "level": 24576,
+      "prompt_index": 0,
+      "prompt_id": "l24576-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p01-reset",
+      "level": 24576,
+      "prompt_index": 1,
+      "prompt_id": "l24576-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p01-cold",
+      "level": 24576,
+      "prompt_index": 1,
+      "prompt_id": "l24576-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p01-cached",
+      "level": 24576,
+      "prompt_index": 1,
+      "prompt_id": "l24576-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p02-reset",
+      "level": 24576,
+      "prompt_index": 2,
+      "prompt_id": "l24576-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p02-cold",
+      "level": 24576,
+      "prompt_index": 2,
+      "prompt_id": "l24576-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p02-cached",
+      "level": 24576,
+      "prompt_index": 2,
+      "prompt_id": "l24576-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p03-reset",
+      "level": 24576,
+      "prompt_index": 3,
+      "prompt_id": "l24576-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p03-cold",
+      "level": 24576,
+      "prompt_index": 3,
+      "prompt_id": "l24576-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p03-cached",
+      "level": 24576,
+      "prompt_index": 3,
+      "prompt_id": "l24576-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p04-reset",
+      "level": 24576,
+      "prompt_index": 4,
+      "prompt_id": "l24576-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p04-cold",
+      "level": 24576,
+      "prompt_index": 4,
+      "prompt_id": "l24576-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p04-cached",
+      "level": 24576,
+      "prompt_index": 4,
+      "prompt_id": "l24576-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p05-reset",
+      "level": 24576,
+      "prompt_index": 5,
+      "prompt_id": "l24576-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p05-cold",
+      "level": 24576,
+      "prompt_index": 5,
+      "prompt_id": "l24576-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p05-cached",
+      "level": 24576,
+      "prompt_index": 5,
+      "prompt_id": "l24576-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p06-reset",
+      "level": 24576,
+      "prompt_index": 6,
+      "prompt_id": "l24576-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p06-cold",
+      "level": 24576,
+      "prompt_index": 6,
+      "prompt_id": "l24576-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p06-cached",
+      "level": 24576,
+      "prompt_index": 6,
+      "prompt_id": "l24576-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p07-reset",
+      "level": 24576,
+      "prompt_index": 7,
+      "prompt_id": "l24576-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p07-cold",
+      "level": 24576,
+      "prompt_index": 7,
+      "prompt_id": "l24576-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p07-cached",
+      "level": 24576,
+      "prompt_index": 7,
+      "prompt_id": "l24576-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p08-reset",
+      "level": 24576,
+      "prompt_index": 8,
+      "prompt_id": "l24576-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p08-cold",
+      "level": 24576,
+      "prompt_index": 8,
+      "prompt_id": "l24576-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p08-cached",
+      "level": 24576,
+      "prompt_index": 8,
+      "prompt_id": "l24576-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l24576-p09-reset",
+      "level": 24576,
+      "prompt_index": 9,
+      "prompt_id": "l24576-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l24576-p09-cold",
+      "level": 24576,
+      "prompt_index": 9,
+      "prompt_id": "l24576-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l24576-p09-cached",
+      "level": 24576,
+      "prompt_index": 9,
+      "prompt_id": "l24576-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p00-reset",
+      "level": 32768,
+      "prompt_index": 0,
+      "prompt_id": "l32768-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p00-cold",
+      "level": 32768,
+      "prompt_index": 0,
+      "prompt_id": "l32768-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p00-cached",
+      "level": 32768,
+      "prompt_index": 0,
+      "prompt_id": "l32768-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p01-reset",
+      "level": 32768,
+      "prompt_index": 1,
+      "prompt_id": "l32768-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p01-cold",
+      "level": 32768,
+      "prompt_index": 1,
+      "prompt_id": "l32768-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p01-cached",
+      "level": 32768,
+      "prompt_index": 1,
+      "prompt_id": "l32768-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p02-reset",
+      "level": 32768,
+      "prompt_index": 2,
+      "prompt_id": "l32768-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p02-cold",
+      "level": 32768,
+      "prompt_index": 2,
+      "prompt_id": "l32768-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p02-cached",
+      "level": 32768,
+      "prompt_index": 2,
+      "prompt_id": "l32768-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p03-reset",
+      "level": 32768,
+      "prompt_index": 3,
+      "prompt_id": "l32768-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p03-cold",
+      "level": 32768,
+      "prompt_index": 3,
+      "prompt_id": "l32768-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p03-cached",
+      "level": 32768,
+      "prompt_index": 3,
+      "prompt_id": "l32768-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p04-reset",
+      "level": 32768,
+      "prompt_index": 4,
+      "prompt_id": "l32768-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p04-cold",
+      "level": 32768,
+      "prompt_index": 4,
+      "prompt_id": "l32768-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p04-cached",
+      "level": 32768,
+      "prompt_index": 4,
+      "prompt_id": "l32768-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p05-reset",
+      "level": 32768,
+      "prompt_index": 5,
+      "prompt_id": "l32768-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p05-cold",
+      "level": 32768,
+      "prompt_index": 5,
+      "prompt_id": "l32768-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p05-cached",
+      "level": 32768,
+      "prompt_index": 5,
+      "prompt_id": "l32768-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p06-reset",
+      "level": 32768,
+      "prompt_index": 6,
+      "prompt_id": "l32768-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p06-cold",
+      "level": 32768,
+      "prompt_index": 6,
+      "prompt_id": "l32768-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p06-cached",
+      "level": 32768,
+      "prompt_index": 6,
+      "prompt_id": "l32768-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p07-reset",
+      "level": 32768,
+      "prompt_index": 7,
+      "prompt_id": "l32768-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p07-cold",
+      "level": 32768,
+      "prompt_index": 7,
+      "prompt_id": "l32768-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p07-cached",
+      "level": 32768,
+      "prompt_index": 7,
+      "prompt_id": "l32768-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p08-reset",
+      "level": 32768,
+      "prompt_index": 8,
+      "prompt_id": "l32768-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p08-cold",
+      "level": 32768,
+      "prompt_index": 8,
+      "prompt_id": "l32768-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p08-cached",
+      "level": 32768,
+      "prompt_index": 8,
+      "prompt_id": "l32768-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l32768-p09-reset",
+      "level": 32768,
+      "prompt_index": 9,
+      "prompt_id": "l32768-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l32768-p09-cold",
+      "level": 32768,
+      "prompt_index": 9,
+      "prompt_id": "l32768-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l32768-p09-cached",
+      "level": 32768,
+      "prompt_index": 9,
+      "prompt_id": "l32768-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p00-reset",
+      "level": 65536,
+      "prompt_index": 0,
+      "prompt_id": "l65536-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p00-cold",
+      "level": 65536,
+      "prompt_index": 0,
+      "prompt_id": "l65536-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p00-cached",
+      "level": 65536,
+      "prompt_index": 0,
+      "prompt_id": "l65536-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p01-reset",
+      "level": 65536,
+      "prompt_index": 1,
+      "prompt_id": "l65536-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p01-cold",
+      "level": 65536,
+      "prompt_index": 1,
+      "prompt_id": "l65536-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p01-cached",
+      "level": 65536,
+      "prompt_index": 1,
+      "prompt_id": "l65536-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p02-reset",
+      "level": 65536,
+      "prompt_index": 2,
+      "prompt_id": "l65536-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p02-cold",
+      "level": 65536,
+      "prompt_index": 2,
+      "prompt_id": "l65536-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p02-cached",
+      "level": 65536,
+      "prompt_index": 2,
+      "prompt_id": "l65536-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p03-reset",
+      "level": 65536,
+      "prompt_index": 3,
+      "prompt_id": "l65536-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p03-cold",
+      "level": 65536,
+      "prompt_index": 3,
+      "prompt_id": "l65536-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p03-cached",
+      "level": 65536,
+      "prompt_index": 3,
+      "prompt_id": "l65536-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p04-reset",
+      "level": 65536,
+      "prompt_index": 4,
+      "prompt_id": "l65536-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p04-cold",
+      "level": 65536,
+      "prompt_index": 4,
+      "prompt_id": "l65536-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p04-cached",
+      "level": 65536,
+      "prompt_index": 4,
+      "prompt_id": "l65536-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p05-reset",
+      "level": 65536,
+      "prompt_index": 5,
+      "prompt_id": "l65536-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p05-cold",
+      "level": 65536,
+      "prompt_index": 5,
+      "prompt_id": "l65536-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p05-cached",
+      "level": 65536,
+      "prompt_index": 5,
+      "prompt_id": "l65536-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p06-reset",
+      "level": 65536,
+      "prompt_index": 6,
+      "prompt_id": "l65536-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p06-cold",
+      "level": 65536,
+      "prompt_index": 6,
+      "prompt_id": "l65536-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p06-cached",
+      "level": 65536,
+      "prompt_index": 6,
+      "prompt_id": "l65536-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p07-reset",
+      "level": 65536,
+      "prompt_index": 7,
+      "prompt_id": "l65536-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p07-cold",
+      "level": 65536,
+      "prompt_index": 7,
+      "prompt_id": "l65536-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p07-cached",
+      "level": 65536,
+      "prompt_index": 7,
+      "prompt_id": "l65536-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p08-reset",
+      "level": 65536,
+      "prompt_index": 8,
+      "prompt_id": "l65536-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p08-cold",
+      "level": 65536,
+      "prompt_index": 8,
+      "prompt_id": "l65536-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p08-cached",
+      "level": 65536,
+      "prompt_index": 8,
+      "prompt_id": "l65536-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l65536-p09-reset",
+      "level": 65536,
+      "prompt_index": 9,
+      "prompt_id": "l65536-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l65536-p09-cold",
+      "level": 65536,
+      "prompt_index": 9,
+      "prompt_id": "l65536-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l65536-p09-cached",
+      "level": 65536,
+      "prompt_index": 9,
+      "prompt_id": "l65536-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p00-reset",
+      "level": 131072,
+      "prompt_index": 0,
+      "prompt_id": "l131072-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p00-cold",
+      "level": 131072,
+      "prompt_index": 0,
+      "prompt_id": "l131072-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p00-cached",
+      "level": 131072,
+      "prompt_index": 0,
+      "prompt_id": "l131072-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p01-reset",
+      "level": 131072,
+      "prompt_index": 1,
+      "prompt_id": "l131072-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p01-cold",
+      "level": 131072,
+      "prompt_index": 1,
+      "prompt_id": "l131072-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p01-cached",
+      "level": 131072,
+      "prompt_index": 1,
+      "prompt_id": "l131072-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p02-reset",
+      "level": 131072,
+      "prompt_index": 2,
+      "prompt_id": "l131072-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p02-cold",
+      "level": 131072,
+      "prompt_index": 2,
+      "prompt_id": "l131072-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p02-cached",
+      "level": 131072,
+      "prompt_index": 2,
+      "prompt_id": "l131072-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p03-reset",
+      "level": 131072,
+      "prompt_index": 3,
+      "prompt_id": "l131072-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p03-cold",
+      "level": 131072,
+      "prompt_index": 3,
+      "prompt_id": "l131072-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p03-cached",
+      "level": 131072,
+      "prompt_index": 3,
+      "prompt_id": "l131072-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p04-reset",
+      "level": 131072,
+      "prompt_index": 4,
+      "prompt_id": "l131072-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p04-cold",
+      "level": 131072,
+      "prompt_index": 4,
+      "prompt_id": "l131072-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p04-cached",
+      "level": 131072,
+      "prompt_index": 4,
+      "prompt_id": "l131072-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p05-reset",
+      "level": 131072,
+      "prompt_index": 5,
+      "prompt_id": "l131072-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p05-cold",
+      "level": 131072,
+      "prompt_index": 5,
+      "prompt_id": "l131072-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p05-cached",
+      "level": 131072,
+      "prompt_index": 5,
+      "prompt_id": "l131072-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p06-reset",
+      "level": 131072,
+      "prompt_index": 6,
+      "prompt_id": "l131072-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p06-cold",
+      "level": 131072,
+      "prompt_index": 6,
+      "prompt_id": "l131072-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p06-cached",
+      "level": 131072,
+      "prompt_index": 6,
+      "prompt_id": "l131072-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p07-reset",
+      "level": 131072,
+      "prompt_index": 7,
+      "prompt_id": "l131072-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p07-cold",
+      "level": 131072,
+      "prompt_index": 7,
+      "prompt_id": "l131072-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p07-cached",
+      "level": 131072,
+      "prompt_index": 7,
+      "prompt_id": "l131072-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p08-reset",
+      "level": 131072,
+      "prompt_index": 8,
+      "prompt_id": "l131072-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p08-cold",
+      "level": 131072,
+      "prompt_index": 8,
+      "prompt_id": "l131072-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p08-cached",
+      "level": 131072,
+      "prompt_index": 8,
+      "prompt_id": "l131072-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l131072-p09-reset",
+      "level": 131072,
+      "prompt_index": 9,
+      "prompt_id": "l131072-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l131072-p09-cold",
+      "level": 131072,
+      "prompt_index": 9,
+      "prompt_id": "l131072-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l131072-p09-cached",
+      "level": 131072,
+      "prompt_index": 9,
+      "prompt_id": "l131072-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p00-reset",
+      "level": 196608,
+      "prompt_index": 0,
+      "prompt_id": "l196608-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p00-cold",
+      "level": 196608,
+      "prompt_index": 0,
+      "prompt_id": "l196608-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p00-cached",
+      "level": 196608,
+      "prompt_index": 0,
+      "prompt_id": "l196608-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p01-reset",
+      "level": 196608,
+      "prompt_index": 1,
+      "prompt_id": "l196608-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p01-cold",
+      "level": 196608,
+      "prompt_index": 1,
+      "prompt_id": "l196608-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p01-cached",
+      "level": 196608,
+      "prompt_index": 1,
+      "prompt_id": "l196608-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p02-reset",
+      "level": 196608,
+      "prompt_index": 2,
+      "prompt_id": "l196608-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p02-cold",
+      "level": 196608,
+      "prompt_index": 2,
+      "prompt_id": "l196608-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p02-cached",
+      "level": 196608,
+      "prompt_index": 2,
+      "prompt_id": "l196608-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p03-reset",
+      "level": 196608,
+      "prompt_index": 3,
+      "prompt_id": "l196608-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p03-cold",
+      "level": 196608,
+      "prompt_index": 3,
+      "prompt_id": "l196608-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p03-cached",
+      "level": 196608,
+      "prompt_index": 3,
+      "prompt_id": "l196608-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p04-reset",
+      "level": 196608,
+      "prompt_index": 4,
+      "prompt_id": "l196608-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p04-cold",
+      "level": 196608,
+      "prompt_index": 4,
+      "prompt_id": "l196608-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p04-cached",
+      "level": 196608,
+      "prompt_index": 4,
+      "prompt_id": "l196608-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p05-reset",
+      "level": 196608,
+      "prompt_index": 5,
+      "prompt_id": "l196608-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p05-cold",
+      "level": 196608,
+      "prompt_index": 5,
+      "prompt_id": "l196608-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p05-cached",
+      "level": 196608,
+      "prompt_index": 5,
+      "prompt_id": "l196608-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p06-reset",
+      "level": 196608,
+      "prompt_index": 6,
+      "prompt_id": "l196608-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p06-cold",
+      "level": 196608,
+      "prompt_index": 6,
+      "prompt_id": "l196608-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p06-cached",
+      "level": 196608,
+      "prompt_index": 6,
+      "prompt_id": "l196608-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p07-reset",
+      "level": 196608,
+      "prompt_index": 7,
+      "prompt_id": "l196608-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p07-cold",
+      "level": 196608,
+      "prompt_index": 7,
+      "prompt_id": "l196608-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p07-cached",
+      "level": 196608,
+      "prompt_index": 7,
+      "prompt_id": "l196608-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p08-reset",
+      "level": 196608,
+      "prompt_index": 8,
+      "prompt_id": "l196608-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p08-cold",
+      "level": 196608,
+      "prompt_index": 8,
+      "prompt_id": "l196608-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p08-cached",
+      "level": 196608,
+      "prompt_index": 8,
+      "prompt_id": "l196608-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l196608-p09-reset",
+      "level": 196608,
+      "prompt_index": 9,
+      "prompt_id": "l196608-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l196608-p09-cold",
+      "level": 196608,
+      "prompt_index": 9,
+      "prompt_id": "l196608-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l196608-p09-cached",
+      "level": 196608,
+      "prompt_index": 9,
+      "prompt_id": "l196608-p09",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p00-reset",
+      "level": 261112,
+      "prompt_index": 0,
+      "prompt_id": "l261112-p00",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p00-cold",
+      "level": 261112,
+      "prompt_index": 0,
+      "prompt_id": "l261112-p00",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p00-cached",
+      "level": 261112,
+      "prompt_index": 0,
+      "prompt_id": "l261112-p00",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p01-reset",
+      "level": 261112,
+      "prompt_index": 1,
+      "prompt_id": "l261112-p01",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p01-cold",
+      "level": 261112,
+      "prompt_index": 1,
+      "prompt_id": "l261112-p01",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p01-cached",
+      "level": 261112,
+      "prompt_index": 1,
+      "prompt_id": "l261112-p01",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p02-reset",
+      "level": 261112,
+      "prompt_index": 2,
+      "prompt_id": "l261112-p02",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p02-cold",
+      "level": 261112,
+      "prompt_index": 2,
+      "prompt_id": "l261112-p02",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p02-cached",
+      "level": 261112,
+      "prompt_index": 2,
+      "prompt_id": "l261112-p02",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p03-reset",
+      "level": 261112,
+      "prompt_index": 3,
+      "prompt_id": "l261112-p03",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p03-cold",
+      "level": 261112,
+      "prompt_index": 3,
+      "prompt_id": "l261112-p03",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p03-cached",
+      "level": 261112,
+      "prompt_index": 3,
+      "prompt_id": "l261112-p03",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p04-reset",
+      "level": 261112,
+      "prompt_index": 4,
+      "prompt_id": "l261112-p04",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p04-cold",
+      "level": 261112,
+      "prompt_index": 4,
+      "prompt_id": "l261112-p04",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p04-cached",
+      "level": 261112,
+      "prompt_index": 4,
+      "prompt_id": "l261112-p04",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p05-reset",
+      "level": 261112,
+      "prompt_index": 5,
+      "prompt_id": "l261112-p05",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p05-cold",
+      "level": 261112,
+      "prompt_index": 5,
+      "prompt_id": "l261112-p05",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p05-cached",
+      "level": 261112,
+      "prompt_index": 5,
+      "prompt_id": "l261112-p05",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p06-reset",
+      "level": 261112,
+      "prompt_index": 6,
+      "prompt_id": "l261112-p06",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p06-cold",
+      "level": 261112,
+      "prompt_index": 6,
+      "prompt_id": "l261112-p06",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p06-cached",
+      "level": 261112,
+      "prompt_index": 6,
+      "prompt_id": "l261112-p06",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p07-reset",
+      "level": 261112,
+      "prompt_index": 7,
+      "prompt_id": "l261112-p07",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p07-cold",
+      "level": 261112,
+      "prompt_index": 7,
+      "prompt_id": "l261112-p07",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p07-cached",
+      "level": 261112,
+      "prompt_index": 7,
+      "prompt_id": "l261112-p07",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p08-reset",
+      "level": 261112,
+      "prompt_index": 8,
+      "prompt_id": "l261112-p08",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p08-cold",
+      "level": 261112,
+      "prompt_index": 8,
+      "prompt_id": "l261112-p08",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p08-cached",
+      "level": 261112,
+      "prompt_index": 8,
+      "prompt_id": "l261112-p08",
+      "kind": "cached"
+    },
+    {
+      "id": "l261112-p09-reset",
+      "level": 261112,
+      "prompt_index": 9,
+      "prompt_id": "l261112-p09",
+      "kind": "reset"
+    },
+    {
+      "id": "l261112-p09-cold",
+      "level": 261112,
+      "prompt_index": 9,
+      "prompt_id": "l261112-p09",
+      "kind": "cold"
+    },
+    {
+      "id": "l261112-p09-cached",
+      "level": 261112,
+      "prompt_index": 9,
+      "prompt_id": "l261112-p09",
+      "kind": "cached"
+    }
+  ],
+  "directive": "Return exactly one JSON object with exactly these three case-sensitive keys: KEY_0, KEY_1, KEY_2. For each key, copy the corresponding AUTHORITATIVE record's value exactly as a JSON string. AUTHORITATIVE is a source label and must not appear in the output key names. Do not add other fields, Markdown fences, headings or commentary.",
+  "sampling": {
+    "model": "flash-next-strata-iq2xs",
+    "temperature": 0,
+    "top_p": 1,
+    "stream": true,
+    "stream_options": {
+      "include_usage": true
+    },
+    "enable_thinking": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "max_tokens": 1024
+  },
+  "context_budget": {
+    "window": 262144,
+    "maximum_input": 261112,
+    "output_reservation": 1024,
+    "internal_reservation": 8
+  },
+  "transform": "Original answer-bearing records/expected values unchanged. Replace final weak instruction and padding with exact stronger suffix; remove minimum last non-authoritative filler record lines (at most2 observed); x padding before suffix restores exact original input target. New corpus independently frozen; not a matched same-byte original-wording comparison.",
+  "scoring": {
+    "raw_json_object": "Whole stripped raw content must parse to one object; duplicate keys and nonfinite constants rejected in this new study. No fence stripping.",
+    "field_shape": "Exactly case-sensitive KEY_0/1/2, each a 16-character lower-case hex JSON string.",
+    "exact_values": "Full object equals immutable fixture expected map.",
+    "qualified_exact": "exact_values and finish_reason stop.",
+    "fence_only_exact": "Separate diagnostic, remove exactly one Markdown JSON fence; never changes primary result.",
+    "method_change_disclosure": "Duplicate/nonfinite rejection explicitly stricter than historical json.loads scoring; historical scores not rewritten."
+  },
+  "cache": "One eight-token-budget OK reset, then cold measured request (require0reuse), then identical cached measured request (require positive reuse); API/native counts agree. Exact reuse recorded, no fixed-suffix assumption.",
+  "independence": "Ten distinct prompts per level, one cold/cached pair each, one back-to-back session. Not n=50, not across-day replication, not quantization attribution. Prior results descriptive/historical only.",
+  "protocol_sha256": "f190b255309d9ad6f9d088d50a1603172d62499903a1cd9fbfc7b6a2d49e854d",
+  "model_weights": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS",
+  "engine_binary_sha256": "e5761f48c6ee42ed2a747765219275e8823c10b2f187e23d412f3c2665f0f3af",
+  "chat_template_sha256": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+  "build": "Strata 0.1.54 local session-memory build; earlier no-MTP SAVE/RESTORE fix and bounded mapped-file cache advice. Not stock upstream.",
+  "reset_payload": {
+    "model": "flash-next-strata-iq2xs",
+    "temperature": 0,
+    "top_p": 1,
+    "stream": true,
+    "stream_options": {
+      "include_usage": true
+    },
+    "enable_thinking": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "max_tokens": 8,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Output only OK."
+      }
+    ]
+  },
+  "generation_replication_boundary": "Matching weights, tokenizer/template, patched engine and operating/safety profile are required. The engine binary/patch source is not distributed in this package. Their release remains owner review."
+}

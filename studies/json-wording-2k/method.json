@@ -1,0 +1,205 @@
+{
+  "campaign": "VW-2353-json-causality-20261109",
+  "question": "Does explicit no-Markdown wording or its placement change raw JSON compliance with fixed weights/runtime/template?",
+  "paired_prompts": 10,
+  "measured_calls": 30,
+  "reset_calls": 30,
+  "maximum_requests": 60,
+  "deadline_seconds": 3600,
+  "per_request_timeout_seconds": 120,
+  "automatic_retry": false,
+  "sampling": {
+    "temperature": 0,
+    "top_p": 1,
+    "enable_thinking": false,
+    "max_tokens": 1024
+  },
+  "independence": "Ten distinct fixtures; greedy runs are not independent random-seed samples. Cyclic arm order balances position as 4/3/3; not a randomized multi-session trial.",
+  "cache": "One existing 8-token OK reset before each measured call; require native reused_tokens=0.",
+  "arms": [
+    "original",
+    "explicit_beginning",
+    "explicit_end"
+  ],
+  "directive": "Return exactly one JSON object. Do not use Markdown, code fences, backticks, headings, or commentary. The first non-whitespace character must be { and the last must be }.",
+  "schedule": [
+    {
+      "id": "p00-original",
+      "prompt_index": 0,
+      "arm": "original"
+    },
+    {
+      "id": "p00-explicit-beginning",
+      "prompt_index": 0,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p00-explicit-end",
+      "prompt_index": 0,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p01-explicit-beginning",
+      "prompt_index": 1,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p01-explicit-end",
+      "prompt_index": 1,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p01-original",
+      "prompt_index": 1,
+      "arm": "original"
+    },
+    {
+      "id": "p02-explicit-end",
+      "prompt_index": 2,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p02-original",
+      "prompt_index": 2,
+      "arm": "original"
+    },
+    {
+      "id": "p02-explicit-beginning",
+      "prompt_index": 2,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p03-original",
+      "prompt_index": 3,
+      "arm": "original"
+    },
+    {
+      "id": "p03-explicit-beginning",
+      "prompt_index": 3,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p03-explicit-end",
+      "prompt_index": 3,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p04-explicit-beginning",
+      "prompt_index": 4,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p04-explicit-end",
+      "prompt_index": 4,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p04-original",
+      "prompt_index": 4,
+      "arm": "original"
+    },
+    {
+      "id": "p05-explicit-end",
+      "prompt_index": 5,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p05-original",
+      "prompt_index": 5,
+      "arm": "original"
+    },
+    {
+      "id": "p05-explicit-beginning",
+      "prompt_index": 5,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p06-original",
+      "prompt_index": 6,
+      "arm": "original"
+    },
+    {
+      "id": "p06-explicit-beginning",
+      "prompt_index": 6,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p06-explicit-end",
+      "prompt_index": 6,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p07-explicit-beginning",
+      "prompt_index": 7,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p07-explicit-end",
+      "prompt_index": 7,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p07-original",
+      "prompt_index": 7,
+      "arm": "original"
+    },
+    {
+      "id": "p08-explicit-end",
+      "prompt_index": 8,
+      "arm": "explicit_end"
+    },
+    {
+      "id": "p08-original",
+      "prompt_index": 8,
+      "arm": "original"
+    },
+    {
+      "id": "p08-explicit-beginning",
+      "prompt_index": 8,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p09-original",
+      "prompt_index": 9,
+      "arm": "original"
+    },
+    {
+      "id": "p09-explicit-beginning",
+      "prompt_index": 9,
+      "arm": "explicit_beginning"
+    },
+    {
+      "id": "p09-explicit-end",
+      "prompt_index": 9,
+      "arm": "explicit_end"
+    }
+  ],
+  "scope": "Prompt intervention only; no quantization, runtime or template causal attribution.",
+  "original_protocol_sha256": "3edc839698d044afa57ba21b49e333c35f15e2d8fb602c95426223bdfbeef3e7",
+  "upstream_source_commit": "870aedd9e1ebe1c91f94da93b59af17729f6c5c0",
+  "binary_sha256": "e5761f48c6ee42ed2a747765219275e8823c10b2f187e23d412f3c2665f0f3af",
+  "template_sha256": "12827f24b742ea4e80cdc12dbcf9622227056b9f797252a3149263d4f9aaadce",
+  "model": "Qwen3.8-Flash-Next-GSQ-RCO-IQ2_XS",
+  "engine": "Strata 0.1.54 local session-memory build; prior no-MTP SAVE/RESTORE fix and bounded mapped-file cache advice; not stock upstream",
+  "reset_payload": {
+    "model": "flash-next-strata-iq2xs",
+    "temperature": 0,
+    "top_p": 1,
+    "stream": true,
+    "stream_options": {
+      "include_usage": true
+    },
+    "enable_thinking": false,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "Output only OK."
+      }
+    ],
+    "max_tokens": 8
+  },
+  "replication_boundary": "Scoring replay is self-contained. Exact generation replication additionally requires the recorded model, tokenizer/template, patched engine, request/profile and resource envelope; patched binary/source is not distributed in this package."
+}
