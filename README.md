@@ -1,59 +1,95 @@
-# Strata on a 16 GiB RTX 4080 through a 256K window
+# Strata on a 16 GiB RTX 4080 through a 256K context window
 
-**Release 1.0.0 · 9 November 2026.**
+**Release 1.0.1 · 10 November 2026.** This documentation update improves readability. The measurements and scoring are unchanged from release 1.0.0.
 
-[Research article](https://rduffy.uk/research/benchmarking/strata-memory-pools/) · [Benchmark report](https://rduffy.uk/benchmarks/strata/) · [GitHub](https://github.com/rduffyuk/strata-context-benchmark) This package characterizes one configured local deployment. It is not an official Strata score, an unmodified engine comparison, proof of a quantization defect or a continuously reliable autonomous agent.
+[Research article](https://rduffy.uk/research/benchmarking/strata-memory-pools/) · [Benchmark report](https://rduffy.uk/benchmarks/strata/) · [GitHub releases](https://github.com/rduffyuk/strata-context-benchmark/releases)
 
-## Replay all published scores and timings
+This benchmark describes one configured local Strata deployment. It measures retrieval, prefill, prefix reuse, decode speed and output formatting. It does not establish performance for every Strata configuration, prove that quantization caused a formatting failure, or demonstrate indefinite autonomous-agent reliability.
 
-Use Python3.10 or later. No third-party packages, network, model download or GPU are needed:
+## Reproduce the reported results
+
+Use Python 3.10 or later:
 
 ```sh
 python3 reproduce_all.py
 ```
 
-Git checkout metadata and signed provenance sidecars are outside the content manifest; arbitrary extra package files and changes to evidence are rejected. The root manifest is checked before the three fixed offline replay programs run. Each study also checks its own evidence manifest. Do not disable verification to obtain a pass. Hashes demonstrate agreement with the reviewed bytes; compare the release/archive digest with a trusted owner-approved publication record for origin, and do not mistake these checks for independent third-party validation.
+This replays the recorded results offline. It needs no third-party Python packages, network access, model download or GPU, and it does not start an inference server.
 
-| Separate dataset | Scope | Reproduced finding |
+The replay first checks the root manifest, then runs the three study scorers. Each study also verifies its own evidence manifest. Git metadata and signed provenance sidecars are excluded from the package file list; arbitrary extra files and changes to the evidence are rejected. Do not disable these checks to obtain a pass.
+
+Hashes establish agreement with the released files. Compare the archive checksum with the published release record to check its origin. These checks are not independent scientific validation.
+
+## What was tested
+
+The package contains three separate datasets:
+
+| Dataset | Method | Recorded result |
 |---|---|---|
-| `studies/v7` | Ten prompts × five consecutive sessions; eight input lengths, cold/cached;50observations/condition plus50sustained outputs | All1375calls/850measurements; strict rawJSON0/800; fence-only posthoc800/800;136metric summaries checked |
-| `studies/json-wording-2k` | Ten prompts × three instruction arms at2K;30measured responses | BareJSON0/10,10/10,10/10; exact keys/values0/10,9/10,10/10 |
-| `studies/strong-json-context` | Ten prompts × eight lengths × cold/cached in one pass;160measured responses | Raw exactJSON and complete-stop160/160; not a newn50 dataset |
+| `studies/v7` | Ten prompts repeated across five consecutive sessions, at eight input lengths, in cold and cached conditions. Each context/cache condition has 50 observations. A separate sustained-output test has 50 samples. | 1,375 calls in total, including 850 measurements. Strict raw JSON: 0/800. After separately labelled, posthoc fence removal: 800/800 exact values. The replay checks 136 metric summaries. |
+| `studies/json-wording-2k` | Ten prompts tested with three instruction variants at 2K context: 30 measured responses. | Bare JSON syntax passed 0/10, 10/10 and 10/10. Exact keys and values passed 0/10, 9/10 and 10/10. |
+| `studies/strong-json-context` | Ten prompts at eight input lengths, in cold and cached conditions, in one pass: 160 measured responses. | 160/160 responses passed exact raw JSON and complete-stop checks. This is a separate follow-up, not another n=50 study. |
 
-V7's separate sustained test used50inputtokens and1024actualoutputtokens per sample: median41.614tokens/s. This is not long-output generation at256K. The maximum input in both full-context datasets is261112tokens, with1024outputtokens and8internal tokens reserved inside the262144total window. Five consecutive V7 sessions lasted6h41m22s; the stronger-prompt pass lasted1h03m51s. No claims of across-day replication or indefinite availability are made. Failed historical campaigns are not pooled into these results.
+### Decode speed
 
-## Package contents
+V7's separate sustained-output test used **50 input tokens and 1,024 actual output tokens per sample**. Across 50 samples, the median decode speed was **41.614 tokens per second**.
 
-- Each study contains exact synthetic messages, evaluator answers, raw observed responses, settings/schedule and its original scoring semantics. V7 deduplicates repeated messages but retains all1375call identities and native performance observations, including excluded calls.
-- `results/` and `figures/` contain the reported tables and selected figures.
-- `environment.json` records the fixed deployment profile, model revision/file pins, native binary, tokenizer/template hashes and safety envelope.
-- `source/patches/` supplies the two ordered local engine patches against the exact upstream revision, with upstream MIT notice and source/hash comparisons.
-- `source-disclosure.md`, `licence-review.md` and `NOTICE.md` separate software, weights, authored content and model outputs. Weights, model packs, expert-profile binary, driver/CUDA binaries, unlock code/firmware, credentials, private operational logs and a live-serving harness are excluded.
+This was a short-context test. It does **not** measure long-output generation at 256K context.
 
-The stand-alone per-study packages retain historical README statements that their original distributions did not include engine source. In this consolidation the local patches are supplied at top level. That does not remove the remaining model-pack, selected expert-profile, wrapper/instrumentation and fresh-build qualification requirements.
+### Context window and duration
 
-## Repeat generation
+Both full-context datasets reached **261,112 input tokens**. Their configured window reserved another **1,024 output tokens** and **8 internal tokens**, for a total of **262,144 tokens**. The short retrieval answers did not necessarily consume the full output reservation.
 
-Offline score replay is complete; fresh generation is a separate environmental replication. Read `source-disclosure.md`, then the relevant study method and exact fixture records. Obtain the legally permitted model inputs, match the recorded template/tokenizer, patched engine and profile, use only the supplied request messages (never append evaluator expected answers), retain every failure/raw output and independently verify native/API input, output and KV-reuse counters. Do not retry silently, normalize primary responses or mix datasets. Keep your environment's hard safety checks and numeric limits intact.
+The five consecutive V7 sessions took **6 hours, 41 minutes and 22 seconds**. The stronger-prompt follow-up took **1 hour, 3 minutes and 51 seconds**.
 
-No turnkey GPU/server launcher is included and this command does not start or contact one. A fresh same-source build or a stock engine is not automatically byte-identical to the measured executable. Differences must be disclosed.
+These runs do not establish repeatability across different days or indefinite availability. Failed earlier campaigns are excluded from these datasets.
 
-## Licences and attribution
+## What is included
 
-Ryan approved MIT for original code and CC BY 4.0 for the authored report, research article, original data and figures. Third-party materials and generated-output rights are handled separately. Publication authorized by Ryan Duffy on 9 November 2026. The model card's Apache tag does not override its stated inherited Qwen Community licence. See the licence review before making model or commercial-use claims.
+- Each study includes its exact synthetic prompts, evaluator answers, raw responses, settings, schedule and scoring rules. V7 stores repeated messages once while retaining all 1,375 call identities and native performance observations, including excluded calls.
+- `results/` and `figures/` contain the reported tables and charts.
+- `environment.json` records the model revision, file and tokenizer fingerprints, engine binary, deployment profile and safety limits.
+- `source/patches/` contains the two ordered local engine patches against the pinned upstream revision, along with the upstream MIT notice and source/hash comparisons.
+- `source-disclosure.md`, `licence-review.md` and `NOTICE.md` explain the software, model, content and generated-output boundaries.
 
-Ryan Duffy owns research design, configuration, acceptance criteria and operational verification. Codex agents assisted implementation, tests, operation, analysis and packaging. See `CITATION.cff`; no DOI or future GitHub URL has been invented.
+No model weights, model packs, expert-profile binary, NVIDIA/CUDA binaries, unlock code or firmware, credentials, private operational logs or live-serving harness are included.
 
-## Upstream references
+The original per-study READMEs describe what their earlier standalone packages contained. This consolidated release additionally includes the engine patches at the top level. Fresh generation still requires the appropriate model pack, selected expert profile, wrapper/instrumentation and a qualified build.
 
-See `REFERENCES.md` and `REFERENCES.bib` for the exact Strata/model revisions, GSQ/RCO papers, toolchain and plotting credits. `CITATION.cff` describes this benchmark; it does not replace upstream attribution.
+## Run a new generation experiment
+
+Replaying recorded scores is different from generating new responses. Start with `source-disclosure.md` and the study's method and fixture records.
+
+Match the recorded model inputs, template, tokenizer, patched engine and deployment profile. Supply only the request messages; never append the evaluator's expected answers. Retain failures and raw responses, and verify the input-token, output-token and KV-reuse counters independently.
+
+Do not silently retry requests, normalize primary responses or combine separate datasets. Keep your environment's hard safety checks and numeric limits intact. A fresh build from the same source is not automatically identical to the executable measured here; disclose any differences.
+
+## Licences, references and attribution
+
+Original code is licensed under **MIT**. The authored report, research article, original data and figures use **CC BY 4.0**. Third-party materials and generated-output rights remain separate; see `LICENSE-CODE.txt`, `LICENSE-CONTENT.md` and `NOTICE.md`.
+
+The quantized model card's Apache metadata conflicts with its stated inheritance of the base Qwen Community licence. This package does not redistribute the weights or grant broader model or commercial-use clearance. See `licence-review.md`.
+
+`REFERENCES.md` and `REFERENCES.bib` credit the pinned Strata and model revisions, GSQ/RCO papers, toolchain, plotting tools and mechanism references. `CITATION.cff` explains how to cite this benchmark; it does not replace upstream attribution.
+
+Ryan Duffy led research design, configuration, acceptance criteria and operational verification. Codex agents assisted implementation, testing, experiment operation, analysis and packaging.
 
 ## Research article and memory explanation
 
-The accompanying [research article](https://rduffy.uk/research/benchmarking/strata-memory-pools/) explains sparse experts, the three memory pools, KV state and the configured deployment. Its source is `article/article.md`. Original SVG result charts remain under `figures/`.
+The [research article](https://rduffy.uk/research/benchmarking/strata-memory-pools/) explains sparse experts, GPU/RAM/SSD placement, KV state and the measured configuration. Its source is `article/article.md`; the result charts are in `figures/`.
 
-The current compact explainer is in `article/memory-matrices-v4/widget/`. Optional visual checks: `node article/memory-matrices-v4/widget/test.cjs`. Its activity is illustrative, not recorded routing or performance timing. `memory-facts.json` and `evidence/` distinguish startup GPU allocations, sampled cgroup RAM and model backing.
+The interactive explainer's source is in `article/memory-matrices-v4/widget/`. Its activity is illustrative, not a recorded routing trace or performance timing. Optional visual checks:
 
-Optional RAM reanalysis: `python3 article/memory-matrices-v4/reproduce_ram.py`. This verifies 50,857 retained observations including file cache, not process RSS or independent prompt counts. Maximum sampled charge was 34.0048 GiB; 38 GiB was the configured ceiling.
+```sh
+node article/memory-matrices-v4/widget/test.cjs
+```
 
-The two selected anime illustrations are conceptual artwork generated with OpenAI's image tool and reviewed by Ryan. They depict no measured routing trace. The public package includes selected artwork only; internal review variants and host paths are excluded.
+To verify the retained RAM reanalysis:
+
+```sh
+python3 article/memory-matrices-v4/reproduce_ram.py
+```
+
+This checks 50,857 observations of cgroup-charged memory, including file cache. It is not process RSS or a count of independent prompts. The maximum sampled charge was **34.0048 GiB**; **38 GiB** was the configured ceiling.
+
+The selected anime illustrations were generated with OpenAI's image tool and reviewed by Ryan. They provide conceptual context, not measured routing evidence. Internal review variants and private host paths are excluded.
