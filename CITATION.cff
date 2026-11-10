@@ -4,9 +4,9 @@ title: "Characterizing a configured Strata deployment on a 16 GiB RTX 4080 throu
 authors:
   - family-names: Duffy
     given-names: Ryan
-version: 1.0.0
+version: 1.0.1
 abstract: "Finite synthetic retrieval, latency, throughput and formatting observations on one fixed local configuration; not a general model or continuous autonomous-agent qualification."
-date-released: 2026-11-09
+date-released: 2026-11-10
 url: "https://rduffy.uk/benchmarks/strata/"
 repository-code: "https://github.com/rduffyuk/strata-context-benchmark"
 license:
